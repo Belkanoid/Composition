@@ -1,7 +1,8 @@
-package com.belkanoid.composition
+package com.belkanoid.composition.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.belkanoid.composition.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
