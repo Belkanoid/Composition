@@ -14,17 +14,15 @@ import com.belkanoid.composition.domain.entety.GameResult
 
 class GameFinishedFragment : Fragment() {
 
-    private var _binding : FragmentGameFinishedBinding? = null
-    private val binding : FragmentGameFinishedBinding
+    private var _binding: FragmentGameFinishedBinding? = null
+    private val binding: FragmentGameFinishedBinding
         get() = _binding ?: throw RuntimeException("FragmentGameFinishedBinding == null")
 
-    private lateinit var gameResult : GameResult
+    private lateinit var gameResult: GameResult
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            gameResult = it.getSerializable(GAME_RESULT) as GameResult
-        }
+        gameResult = requireArguments().getSerializable(GAME_RESULT) as GameResult
     }
 
     override fun onCreateView(
@@ -38,20 +36,46 @@ class GameFinishedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                retryFinish()
+        onBackPressedListener()
+
+        with(gameResult) {
+            val drawable = when(winner) {
+                true -> R.drawable.ic_smile
+                else -> R.drawable.ic_sad
             }
-        })
+            with(binding) {
+                emojiResult.setImageResource(drawable)
+                tvScoreAnswers.text = getString(R.string.score_answers, countOfRightAnswers.toString())
+                tvRequiredAnswers.text = getString(R.string.required_score, gameSettings.minCountOfRightAnswers.toString())
+                tvRequiredPercentage.text = getString(R.string.required_percentage, gameSettings.minPercentOfRightAnswers.toString())
+                tvScorePercentage.text = getString(R.string.score_percentage, (((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()).toString())
+            }
+
+        }
+    }
+
+    private fun onBackPressedListener() {
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    retryFinish()
+                }
+            })
 
         binding.buttonRetry.setOnClickListener {
             retryFinish()
         }
     }
 
-    private fun retryFinish(){
-        requireActivity().supportFragmentManager.popBackStack(GameFragment.NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    private fun retryFinish() {
+        requireActivity().supportFragmentManager.popBackStack(
+            GameFragment.NAME,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
     }
+
     companion object {
 
         private const val GAME_RESULT = "game_result"
