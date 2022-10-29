@@ -15,13 +15,12 @@ import com.belkanoid.composition.domain.entety.Question
 import com.belkanoid.composition.domain.useCases.GenerateQuestionUseCase
 import com.belkanoid.composition.domain.useCases.GetGameSettingsUseCase
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel(private val application: Application, private val level: Level) : ViewModel() {
 
     private val repository = GameRepositoryImpl
 
     private lateinit var timer: CountDownTimer
 
-    private val context = application
     private var countOfRightAnswers = 0
     private var countOfQuestions = 0
 
@@ -74,8 +73,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
      * GameViewModel Logic
      * */
 
-    fun startGame(level: Level) {
-        getGameSettings(level)
+    init {
+        startGame()
+    }
+    private fun startGame() {
+        getGameSettings()
         updateProgress()
         startTimer()
         getQuestion()
@@ -95,7 +97,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         countOfQuestions++
     }
 
-    private fun getGameSettings(level: Level) {
+    private fun getGameSettings() {
         _gameSettings.value = getGameSettingsUseCase(level)
         _minPercent.value = _gameSettings.value!!.minPercentOfRightAnswers
 
@@ -105,7 +107,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val percent = calculatePercentOfRightAnswers()
         _percentOfRightAnswers.value = percent
         _progressAnswers.value = String.format(
-            context.resources.getString(R.string.progress_answers),
+            application.resources.getString(R.string.progress_answers),
             countOfRightAnswers,
             _gameSettings.value!!.minCountOfRightAnswers
         )

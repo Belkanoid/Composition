@@ -19,6 +19,7 @@ import com.belkanoid.composition.domain.entety.GameSettings
 import com.belkanoid.composition.domain.entety.Level
 import com.belkanoid.composition.domain.entety.Question
 import com.belkanoid.composition.presentation.viewModel.GameViewModel
+import com.belkanoid.composition.presentation.viewModel.GameViewModelFactory
 
 
 class GameFragment : Fragment() {
@@ -27,11 +28,14 @@ class GameFragment : Fragment() {
     private val binding: FragmentGameBinding
         get() = _binding ?: throw RuntimeException("FragmentGameBinding == null")
 
+    private lateinit var level: Level
+
+    private val gameViewModelFactory by lazy {
+        GameViewModelFactory(level, requireActivity().application)
+    }
+
     private val gameViewModel: GameViewModel by lazy {
-        ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        )[GameViewModel::class.java]
+        ViewModelProvider(this, gameViewModelFactory)[GameViewModel::class.java]
     }
 
     private val options by lazy {
@@ -48,8 +52,7 @@ class GameFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val level = requireArguments().getSerializable(KEY_LEVEL) as Level
-        gameViewModel.startGame(level)
+        level = requireArguments().getSerializable(KEY_LEVEL) as Level
     }
 
     override fun onCreateView(
@@ -75,7 +78,7 @@ class GameFragment : Fragment() {
         gameViewModel.formatTime.observe(viewLifecycleOwner) {
             binding.tvTimer.text = it
         }
-        gameViewModel.percentOfRightAnswers.observe(viewLifecycleOwner){
+        gameViewModel.percentOfRightAnswers.observe(viewLifecycleOwner) {
             binding.progressBar.setProgress(it, true)
         }
         gameViewModel.enoughPercent.observe(viewLifecycleOwner) {
@@ -120,7 +123,7 @@ class GameFragment : Fragment() {
             for (i in options.indices) {
                 options[i].apply {
                     text = question.option[i].toString()
-                    setOnClickListener{
+                    setOnClickListener {
                         gameViewModel.chooseAnswer(question.option[i])
                     }
                 }
