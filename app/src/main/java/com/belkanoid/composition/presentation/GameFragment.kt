@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.belkanoid.composition.R
@@ -31,6 +32,17 @@ class GameFragment : Fragment() {
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
         )[GameViewModel::class.java]
+    }
+
+    private val options by lazy {
+        mutableListOf<TextView>().apply {
+            add(binding.tvOption1)
+            add(binding.tvOption2)
+            add(binding.tvOption3)
+            add(binding.tvOption4)
+            add(binding.tvOption5)
+            add(binding.tvOption6)
+        }
     }
 
 
@@ -101,43 +113,20 @@ class GameFragment : Fragment() {
 
     private fun setQuestion(question: Question) {
         with(binding) {
+
             tvSum.text = question.sum.toString()
             tvLeftNumber.text = question.visibleNumber.toString()
 
-            tvOption1.apply {
-                text = question.option[0].toString()
-                setOnClickListener(answerCheckListener(question.option[0]))
-            }
-            tvOption2.apply {
-                text = question.option[1].toString()
-                setOnClickListener(answerCheckListener(question.option[1]))
-            }
-            tvOption3.apply {
-                text = question.option[2].toString()
-                setOnClickListener(answerCheckListener(question.option[2]))
-            }
-            tvOption4.apply {
-                text = question.option[3].toString()
-                setOnClickListener(answerCheckListener(question.option[3]))
-            }
-            tvOption5.apply {
-                text = question.option[4].toString()
-                setOnClickListener(answerCheckListener(question.option[4]))
-            }
-            tvOption6.apply {
-                text = question.option[5].toString()
-                setOnClickListener(answerCheckListener(question.option[5]))
+            for (i in options.indices) {
+                options[i].apply {
+                    text = question.option[i].toString()
+                    setOnClickListener{
+                        gameViewModel.chooseAnswer(question.option[i])
+                    }
+                }
             }
         }
     }
-
-
-    private val answerCheckListener: ((Int) -> View.OnClickListener) = { option ->
-        View.OnClickListener {
-            gameViewModel.chooseAnswer(option)
-        }
-    }
-
 
     companion object {
         private const val KEY_LEVEL = "key level"

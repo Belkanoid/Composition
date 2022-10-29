@@ -109,7 +109,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             countOfRightAnswers,
             _gameSettings.value!!.minCountOfRightAnswers
         )
-        _enoughPercent.value = countOfRightAnswers >= _gameSettings.value!!.minCountOfRightAnswers
+        _enoughCount.value = countOfRightAnswers >= _gameSettings.value!!.minCountOfRightAnswers
         _enoughPercent.value = percent >= _gameSettings.value!!.minPercentOfRightAnswers
     }
 
